@@ -8,7 +8,16 @@ export class TodoService {
 
   todos:Todo[] = [];
 
-  constructor() {}
+  constructor() {
+    const persistedTodos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    this.todos = persistedTodos.map(todo => {
+      return new Todo(
+        todo.id,
+        todo.title,
+        todo.siCompleted
+      );
+    });
+  }
 
   add(title:string):void {
     let newTodo = new Todo(
@@ -20,8 +29,21 @@ export class TodoService {
     this.save();
   }
 
-  remove():void {}
-  toggleComplate():void {}
+  remove(todo:Todo):void {
+    const index = this.todos.indexOf(todo);
+    this.todos.splice(index, 1);
+    this.save();
+  }
+
+  toggleComplate(todo:Todo):void {
+    this.todos.filter(t => t.id === todo.id)
+      .map(t => t.isCompleted = !t.isCompleted);
+    this.save();
+  }
+
+  getComplatedCount():number {
+    return this.todos.filter(todo => todo.isCompleted).length;
+  }
 
   private save():void {
     console.log('saveing : ', this.todos);
